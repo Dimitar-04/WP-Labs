@@ -56,6 +56,11 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
+    public List<Book>getByAuthorId(Long id){
+        return bookRepository.findAllByAuthor_Id(id);
+    }
+
+    @Override
     public Book editBook(Long id, String title, String genre, Double averageRating, Long authorId) {
         if(id==null||title.isEmpty()||genre.isEmpty()||averageRating==null||authorId==null){
             throw new MissingBookFieldsException();

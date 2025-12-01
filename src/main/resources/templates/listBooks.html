@@ -60,6 +60,22 @@
         </form>
     </div>
 
+    <div>
+        <form th:action="@{/books/searchByAuthor}" th:method="POST">
+            <select name="authorId">
+                <option th:each="author:${authors}"
+                        th:value="${author.id}"
+                        th:text="${author.getName() +' '+ author.getSurname()}"
+                        th:selected="${selectedAuthorId!=null && author.getId()==selectedAuthorId}"
+                >
+
+
+                </option>
+            </select>
+            <button type="submit">Search By Author</button>
+        </form>
+    </div>
+
     <div th:if="${error!=null}">
         <p th:text="${error}" style="color: red"></p>
     </div>

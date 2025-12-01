@@ -10,7 +10,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 @Controller
-@RequestMapping("/books")
+@RequestMapping(value = {"/books",""})
 public class BookController {
 
     private final BookService bookService;
@@ -23,12 +23,24 @@ public class BookController {
     }
 
     @GetMapping
-    public String getBooksPage(@RequestParam(required = false)String error, Model model){
+    public String getBooksPage(@RequestParam(required = false)String error,@RequestParam(required = false)Long authorId, Model model){
         if (error!=null && !error.isEmpty()){
             model.addAttribute("error",error);
         }
-        model.addAttribute("books",bookService.listAll());
+        if (authorId != null) {
+            model.addAttribute("selectedAuthorId",authorId);
+            model.addAttribute("books", bookService.getByAuthorId(authorId));
+        } else {
+            model.addAttribute("books", bookService.listAll());
+
+        }
+        model.addAttribute("authors",authorService.findAll());
         return "listBooks";
+    }
+
+    @PostMapping("/searchByAuthor")
+    public String getBooksByAuthor(@RequestParam(required = false)Long authorId,Model model){
+        return "redirect:/books?authorId="+authorId;
     }
 
     @GetMapping("/add-new")
