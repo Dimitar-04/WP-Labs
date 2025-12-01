@@ -4,6 +4,8 @@ import jakarta.annotation.PostConstruct;
 import mk.ukim.finki.wp.lab.model.Author;
 import mk.ukim.finki.wp.lab.model.Book;
 import mk.ukim.finki.wp.lab.model.BookReservation;
+import mk.ukim.finki.wp.lab.repository.AuthorRepository;
+import mk.ukim.finki.wp.lab.repository.BookRepository;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -11,15 +13,25 @@ import java.util.List;
 
 @Component
 public class DataHolder {
+
+    private final AuthorRepository authorRepository;
+    private final BookRepository bookRepository;
+
+
     public static List<Book>books=null;
     public static List<BookReservation>reservations=null;
     public static List<Author>authors=null;
+
+    public DataHolder(AuthorRepository authorRepository, BookRepository bookRepository) {
+        this.authorRepository = authorRepository;
+        this.bookRepository = bookRepository;
+    }
 
 
     @PostConstruct
     public void init() {
 
-        authors = new ArrayList<>();
+
 
         Author tolkien = new Author(
                 "J.R.R.",
@@ -41,10 +53,13 @@ public class DataHolder {
                 "United Kingdom",
                 "English novelist known for her insightful portrayals of early 19th-century British society and romantic fiction."
         );
-
+        authors = new ArrayList<>();
         authors.add(tolkien);
         authors.add(orwell);
         authors.add(austen);
+
+
+
 
         books = new ArrayList<>();
         books.add(new Book("The Hobbit", "Fantasy", 4.8, tolkien));
@@ -58,7 +73,18 @@ public class DataHolder {
         books.add(new Book("Emma", "Romantic Comedy / Classic", 4.5, austen));
         books.add(new Book("Mansfield Park", "Classic / Drama", 4.4, austen));
 
+
+
+
         reservations = new ArrayList<>();
+        if (authorRepository.findAll().isEmpty()){
+
+            authorRepository.saveAll(authors);
+        }
+        if(bookRepository.findAll().isEmpty()){
+
+            bookRepository.saveAll(books);
+        }
     }
 
 

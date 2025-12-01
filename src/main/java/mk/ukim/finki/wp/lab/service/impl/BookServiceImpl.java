@@ -1,11 +1,13 @@
 package mk.ukim.finki.wp.lab.service.impl;
 
+import jakarta.transaction.Transactional;
 import mk.ukim.finki.wp.lab.model.Author;
 import mk.ukim.finki.wp.lab.model.Book;
 import mk.ukim.finki.wp.lab.model.exceptions.MissingBookFieldsException;
 import mk.ukim.finki.wp.lab.repository.AuthorRepository;
 import mk.ukim.finki.wp.lab.repository.BookRepository;
 import mk.ukim.finki.wp.lab.service.BookService;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -31,7 +33,7 @@ public class BookServiceImpl implements BookService {
         if(text==null||text.isEmpty()||rating==null){
             throw new IllegalArgumentException();
         }
-        return bookRepository.searchBooks(text,rating);
+        return bookRepository.searchBooksByTitleContainingIgnoreCaseAndAverageRatingGreaterThan(text,rating);
     }
 
     @Override
@@ -39,12 +41,13 @@ public class BookServiceImpl implements BookService {
         if (title==null||genre==null||averageRating==null||title.isEmpty()||genre.isEmpty()){
             throw new MissingBookFieldsException();
         }
-        return bookRepository.addNewBook(title,genre,averageRating,author);
+        return bookRepository.save(new Book(title,genre,averageRating,author));
     }
 
     @Override
+    @Transactional
     public void deleteBook(Long id) {
-        bookRepository.deleteBook(id);
+        bookRepository.deleteById(id);
     }
 
     @Override
@@ -57,7 +60,7 @@ public class BookServiceImpl implements BookService {
         if(id==null||title.isEmpty()||genre.isEmpty()||averageRating==null||authorId==null){
             throw new MissingBookFieldsException();
         }
-        Author author=authorRepository.findById(authorId);
+        Author author=authorRepository.findById(authorId).orElse(null);
         Book book=bookRepository.getById(id);
         book.setAverageRating(averageRating);
         book.setTitle(title);
