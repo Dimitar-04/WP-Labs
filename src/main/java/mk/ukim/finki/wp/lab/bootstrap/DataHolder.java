@@ -17,22 +17,25 @@ public class DataHolder {
     private final AuthorRepository authorRepository;
     private final BookRepository bookRepository;
 
-
-    public static List<Book>books=null;
-    public static List<BookReservation>reservations=null;
-    public static List<Author>authors=null;
+    public static List<Book> books = null;
+    public static List<BookReservation> reservations = null;
+    public static List<Author> authors = null;
 
     public DataHolder(AuthorRepository authorRepository, BookRepository bookRepository) {
         this.authorRepository = authorRepository;
         this.bookRepository = bookRepository;
     }
 
-
     @PostConstruct
     public void init() {
+        // Skip if data already exists
+        if (!authorRepository.findAll().isEmpty() && !bookRepository.findAll().isEmpty()) {
+            authors = authorRepository.findAll();
+            books = bookRepository.findAll();
+            return;
+        }
 
-
-
+        // Create new authors without setting ID
         Author tolkien = new Author(
                 "J.R.R.",
                 "Tolkien",
@@ -53,39 +56,29 @@ public class DataHolder {
                 "United Kingdom",
                 "English novelist known for her insightful portrayals of early 19th-century British society and romantic fiction."
         );
-        authors = new ArrayList<>();
-        authors.add(tolkien);
-        authors.add(orwell);
-        authors.add(austen);
 
+        // Save authors and get managed entities
+        authors = authorRepository.saveAll(List.of(tolkien, orwell, austen));
 
-
+        // Use the saved (managed) entities
+        Author savedTolkien = authors.get(0);
+        Author savedOrwell = authors.get(1);
+        Author savedAusten = authors.get(2);
 
         books = new ArrayList<>();
-        books.add(new Book("The Hobbit", "Fantasy", 4.8, tolkien));
-        books.add(new Book("The Lord of the Rings", "Epic Fantasy", 4.9, tolkien));
-        books.add(new Book("The Silmarillion", "Mythic Fantasy", 4.7, tolkien));
-        books.add(new Book("1984", "Dystopian / Political Fiction", 4.7, orwell));
-        books.add(new Book("Animal Farm", "Political Satire / Allegory", 4.6, orwell));
-        books.add(new Book("Homage to Catalonia", "Memoir / War", 4.3, orwell));
-        books.add(new Book("Pride and Prejudice", "Romance / Classic", 4.8, austen));
-        books.add(new Book("Sense and Sensibility", "Romance / Drama", 4.6, austen));
-        books.add(new Book("Emma", "Romantic Comedy / Classic", 4.5, austen));
-        books.add(new Book("Mansfield Park", "Classic / Drama", 4.4, austen));
+        books.add(new Book("The Hobbit", "Fantasy", 4.8, savedTolkien));
+        books.add(new Book("The Lord of the Rings", "Epic Fantasy", 4.9, savedTolkien));
+        books.add(new Book("The Silmarillion", "Mythic Fantasy", 4.7, savedTolkien));
+        books.add(new Book("1984", "Dystopian / Political Fiction", 4.7, savedOrwell));
+        books.add(new Book("Animal Farm", "Political Satire / Allegory", 4.6, savedOrwell));
+        books.add(new Book("Homage to Catalonia", "Memoir / War", 4.3, savedOrwell));
+        books.add(new Book("Pride and Prejudice", "Romance / Classic", 4.8, savedAusten));
+        books.add(new Book("Sense and Sensibility", "Romance / Drama", 4.6, savedAusten));
+        books.add(new Book("Emma", "Romantic Comedy / Classic", 4.5, savedAusten));
+        books.add(new Book("Mansfield Park", "Classic / Drama", 4.4, savedAusten));
 
-
-
+        books = bookRepository.saveAll(books);
 
         reservations = new ArrayList<>();
-        if (authorRepository.findAll().isEmpty()){
-
-            authorRepository.saveAll(authors);
-        }
-        if(bookRepository.findAll().isEmpty()){
-
-            bookRepository.saveAll(books);
-        }
     }
-
-
 }

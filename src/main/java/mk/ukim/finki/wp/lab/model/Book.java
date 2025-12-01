@@ -25,7 +25,7 @@ public class Book {
         this.genre=genre;
         this.averageRating=averageRating;
         this.author=author;
-        this.id=(long)(Math.random()*1000);
+     
     }
 
 }

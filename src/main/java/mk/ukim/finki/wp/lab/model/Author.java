@@ -29,7 +29,7 @@ public class Author {
         this.name=name;
         this.surname=surname;
         this.country=country;
-        this.id=(long)(Math.random()*1000);
+      
         this.books=new ArrayList<>();
     }
 
