@@ -45,17 +45,17 @@
     </style>
 </head>
 <body>
-<header>
+
+
+<main xmlns:th="http://www.thymeleaf.org"   xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
     <h1>Welcome to our Book Reservation App</h1>
-</header>
-<main>
     <div>
         <h2>Search a book:</h2>
-        <form th:action="@{/}" th:method="POST">
+        <form th:action="@{/books}" th:method="POST">
             <label for="bookTitle">Enter title</label>
-            <input type="text" name="bookTitle" id="bookTitle" required>
+            <input type="text" name="bookTitle" id="bookTitle"  th:value="${bookTitle}" required>
             <label for="rating">Enter rating</label>
-            <input type="number" name="rating" id="rating" required>
+            <input type="number" name="rating" id="rating" th:value="${bookRating}" required>
             <input type="Submit" value="Submit">
         </form>
     </div>
@@ -90,18 +90,18 @@
                 <p th:text="${book.getAuthor().name}"></p>
                 <p th:text="${book.getAuthor().surname}"></p>
 
-                <th:block>
+                <th:block sec:authorize="hasRole('ADMIN')">
 
                     <a th:href="@{'/books/book-form/{id}' (id=${book.getId()})}">Edit</a>
                 </th:block>
-                <th:block>
+                <th:block sec:authorize="hasRole('ADMIN')">
                     <a th:href="@{'/books/delete-book/{id}' (id=${book.getId()})}">Delete</a>
                 </th:block>
 
             </li>
 
         </ul>
-        <a href="/books/add-new">Add new book</a>
+        <a href="/books/add-new" sec:authorize="hasRole('ADMIN')">Add new book</a>
         <h2>Enter your information:</h2>
         <label>Your Name:</label>
         <input type="text" name="readerName" required><br/>

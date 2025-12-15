@@ -5,12 +5,15 @@ import mk.ukim.finki.wp.lab.model.Author;
 import mk.ukim.finki.wp.lab.model.Book;
 import mk.ukim.finki.wp.lab.service.AuthorService;
 import mk.ukim.finki.wp.lab.service.BookService;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @Controller
-@RequestMapping(value = {"/books",""})
+@RequestMapping(value = {"/books","/"})
 public class BookController {
 
     private final BookService bookService;
@@ -20,6 +23,17 @@ public class BookController {
         this.bookService = bookService;
 
         this.authorService = authorService;
+    }
+
+    @PostMapping
+    public String getBooksByTitleAndRating(Model model,@RequestParam String bookTitle,@RequestParam Double rating){
+        List<Book>books=bookService.searchBooks(bookTitle,rating);
+        model.addAttribute("books",books);
+        model.addAttribute("bookTitle",bookTitle);
+        model.addAttribute("bookRating",rating);
+        model.addAttribute("authors",authorService.findAll());
+        model.addAttribute("bodyContent","listBooks");
+        return "master-template";
     }
 
     @GetMapping
@@ -35,7 +49,8 @@ public class BookController {
 
         }
         model.addAttribute("authors",authorService.findAll());
-        return "listBooks";
+        model.addAttribute("bodyContent","listBooks");
+        return "master-template";
     }
 
     @PostMapping("/searchByAuthor")
@@ -44,6 +59,7 @@ public class BookController {
     }
 
     @GetMapping("/add-new")
+    @PreAuthorize("hasRole('ADMIN')")
     public String getBookForm(Model model){
         model.addAttribute("authors",authorService.findAll());
         return "book-form";
@@ -51,6 +67,7 @@ public class BookController {
 
 
     @PostMapping("/add")
+    @PreAuthorize("hasRole('ADMIN')")
     public String saveBook(@RequestParam String title,
                            @RequestParam String genre,
                            @RequestParam (required = false) Double averageRating,
@@ -72,6 +89,7 @@ public class BookController {
 
 
     @GetMapping("/book-form/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public String getEditBookForm(@PathVariable Long id, Model model){
         try {
             Book book=bookService.getById(id);
@@ -84,6 +102,7 @@ public class BookController {
     }
 
     @PostMapping("/edit/{bookId}")
+    @PreAuthorize("hasRole('ADMIN')")
     public String editBook(@PathVariable Long bookId,
                            @RequestParam String title,
                            @RequestParam String genre,
@@ -103,6 +122,7 @@ public class BookController {
     }
 
     @GetMapping("/delete-book/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public String deleteBook(@PathVariable Long id){
         bookService.deleteBook(id);
         return "redirect:/books";
